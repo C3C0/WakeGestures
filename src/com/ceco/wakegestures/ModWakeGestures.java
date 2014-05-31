@@ -27,7 +27,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 public class ModWakeGestures implements IXposedHookZygoteInit, IXposedHookLoadPackage {
     public static final String TAG = "WakeGestures";
     public static final String PACKAGE_NAME = ModWakeGestures.class.getPackage().getName();
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     @SuppressWarnings("unused")
     private static WakeGestureHandler sWgh;
