@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2014 Peter Gregus (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <PreferenceCategory
+        android:key="pref_cat_gestures"
+        android:title="@string/pref_cat_gestures_title">
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_right"
+            android:title="@string/pref_wg_sweep_right_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_left"
+            android:title="@string/pref_wg_sweep_left_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_up"
+            android:title="@string/pref_wg_sweep_up_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_down"
+            android:title="@string/pref_wg_sweep_down_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_doubletap"
+            android:title="@string/pref_wg_doubletap_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_cat_about"
+        android:title="@string/pref_cat_about_title">
+
+        <Preference
+            android:key="pref_about" 
+            android:summary="@string/pref_about_summary" />
+
+        <Preference
+            android:key="pref_about_donate" 
+            android:title="@string/pref_about_donate_title"
+            android:summary="@string/pref_about_donate_summary" />
+
+        <Preference
+            android:key="pref_about_elementalx" 
+            android:title="@string/pref_about_elementalx_title"
+            android:summary="@string/pref_about_elementalx_summary" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

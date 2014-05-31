@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+ * Copyright (C) 2014 Peter Gregus (C3C076@xda)
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+<resources>
+
+    <string name="app_name">Wake Gestures</string>
+
+    <string name="module_not_active">Module is not active. Use Xposed Installer to activate module and then 
+        reboot your device.</string>
+    <string name="wake_gestures_unsupported">Your device either does not support kernel level wake gestures 
+        or they are currently disabled</string>
+
+    <string name="pref_cat_gestures_title">Wake gesture actions</string>
+
+    <!-- About -->
+    <string name="pref_cat_about_title">About</string>
+    <string name="pref_about_summary">Developed by C3C076@XDA. Touch to visit official thread.</string>
+    <string name="pref_about_donate_title">Support developer</string>
+    <string name="pref_about_donate_summary">Touch to open PayPal donation page</string>
+    <string name="pref_about_elementalx_title">ElementalX kernel</string>
+    <string name="pref_about_elementalx_summary">Developed by flar2@XDA. Touch to visit official thread.</string>
+
+    <!-- AppPickerPreference -->
+    <string name="app_picker_none">(None)</string>
+    <string name="app_picker_search">Search</string>
+    <string name="app_picker_applications">Applications</string>
+    <string name="app_picker_shortcuts">Shortcuts</string>
+    <string name="app_picker_actions">Actions</string>
+    <string name="app_picker_shortcut_null_intent">Unable to create launchable shortcut because activity did not return shortcut intent</string>
+    <string name="app_picker_shortcut_cancelled">Shortcut creation cancelled by target app</string>
+
+    <!-- Wake gestures -->
+    <string name="pref_wg_sweep_right_title">Sweep right</string>
+    <string name="pref_wg_sweep_left_title">Sweep left</string>
+    <string name="pref_wg_sweep_up_title">Sweep up</string>
+    <string name="pref_wg_sweep_down_title">Sweep down</string>
+    <string name="pref_wg_doubletap_title">Doubletap</string>
+
+    <!-- Actions -->
+    <string name="action_unlock">Unlock</string>
+    <string name="action_toggle_torch">Toggle torch</string>
+    <string name="torch_on">Torch On</string>
+    <string name="torch_off_notif">Touch to turn off</string>
+
+</resources>
