@@ -27,9 +27,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.PowerManager.WakeLock;
+import android.view.KeyEvent;
 
 import com.ceco.wakegestures.WakeGestureProcessor.WakeGesture;
 import com.ceco.wakegestures.preference.AppPickerPreference;
@@ -190,12 +193,12 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
     private void handleIntent(Intent intent) {
         if (intent == null || !intent.hasExtra("mode")) return;
 
-        mWakeLock = mPm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
-            PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE,
+        boolean keepScreenOff = intent.getBooleanExtra(AppPickerPreference.EXTRA_KEEP_SCREEN_OFF, false);
+        mWakeLock = mPm.newWakeLock(keepScreenOff ? PowerManager.PARTIAL_WAKE_LOCK : 
+            PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+                PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE,
                 ModWakeGestures.TAG);
         mWakeLock.acquire();
-        mWakeLock.release();
-        mWakeLock = null;
 
         int mode = intent.getIntExtra("mode", AppPickerPreference.MODE_APP);
         if (mode == AppPickerPreference.MODE_APP || mode == AppPickerPreference.MODE_SHORTCUT) {
@@ -203,6 +206,9 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         } else if (mode == AppPickerPreference.MODE_ACTION) {
             executeAction(intent);
         }
+
+        mWakeLock.release();
+        mWakeLock = null;
     }
 
     private void startActivity(Intent intent) {
@@ -233,6 +239,8 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             }
         } else if (action.equals(AppPickerPreference.ACTION_TOGGLE_TORCH)) {
             toggleTorch();
+        } else if (action.equals(AppPickerPreference.ACTION_MEDIA_CONTROL)) {
+            sendMediaButtonEvent(intent.getIntExtra(AppPickerPreference.EXTRA_MC_KEYCODE, 0));
         }
     }
 
@@ -253,6 +261,38 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             XposedHelpers.callMethod(mContext, "startServiceAsUser", intent, uh);
         } catch (Throwable t) {
             ModWakeGestures.log("Error toggling Torch: " + t.getMessage());
+        }
+    }
+
+    private void sendMediaButtonEvent(int code) {
+        long eventtime = SystemClock.uptimeMillis();
+        Intent keyIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+        KeyEvent keyEvent = new KeyEvent(eventtime, eventtime, KeyEvent.ACTION_DOWN, code, 0);
+        keyIntent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+        dispatchMediaButtonEvent(keyEvent);
+
+        keyEvent = KeyEvent.changeAction(keyEvent, KeyEvent.ACTION_UP);
+        keyIntent.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+        dispatchMediaButtonEvent(keyEvent);
+    }
+
+    private void dispatchMediaButtonEvent(KeyEvent keyEvent) {
+        try {
+            IBinder iBinder = (IBinder) Class.forName("android.os.ServiceManager")
+                    .getDeclaredMethod("checkService", String.class)
+                    .invoke(null, Context.AUDIO_SERVICE);
+
+            // get audioService from IAudioService.Stub.asInterface(IBinder)
+            Object audioService  = Class.forName("android.media.IAudioService$Stub")
+                    .getDeclaredMethod("asInterface",IBinder.class)
+                    .invoke(null,iBinder);
+
+            // Dispatch keyEvent using IAudioService.dispatchMediaKeyEvent(KeyEvent)
+            Class.forName("android.media.IAudioService")
+                    .getDeclaredMethod("dispatchMediaKeyEvent",KeyEvent.class)
+                    .invoke(audioService, keyEvent);
+        } catch (Throwable t) {
+            XposedBridge.log(t);
         }
     }
 

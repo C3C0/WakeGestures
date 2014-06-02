@@ -62,4 +62,8 @@
     <string name="pref_wg_sweep_down_dbl_title">Double-sweep down</string>
     <string name="pref_wg_doubletap_dbl_title">Double-doubletap</string>
 
+    <!-- Media control action -->
+    <string name="media_control_previous">Previous track</string>
+    <string name="media_control_next">Next track</string>
+
 </resources>

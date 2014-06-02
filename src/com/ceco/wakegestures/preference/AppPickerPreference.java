@@ -58,6 +58,7 @@ import android.util.AttributeSet;
 import android.util.LruCache;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -85,6 +86,9 @@ public class AppPickerPreference extends DialogPreference
     // actions
     public static final String ACTION_DISMISS_KEYGUARD = "wakegestures.intent.action.DISMISS_KEYGUARD";
     public static final String ACTION_TOGGLE_TORCH = TorchService.ACTION_TOGGLE_TORCH;
+    public static final String ACTION_MEDIA_CONTROL = "wakegestures.intent.action.MEDIA_CONTROL";
+    public static final String EXTRA_MC_KEYCODE = "mediaControlKeycode";
+    public static final String EXTRA_KEEP_SCREEN_OFF = "keepScreenOff";
 
     public static SettingsFragment sPrefsFragment;
     private static IconListAdapter sIconPickerAdapter;
@@ -328,6 +332,10 @@ public class AppPickerPreference extends DialogPreference
                     itemList.add(new AppItem(mContext.getString(R.string.app_picker_none), null));
                     itemList.add(new UnlockAction());
                     itemList.add(new TorchAction());
+                    itemList.add(new MediaAction(R.string.media_control_previous,
+                            R.drawable.ic_action_av_previous, KeyEvent.KEYCODE_MEDIA_PREVIOUS));
+                    itemList.add(new MediaAction(R.string.media_control_next,
+                            R.drawable.ic_action_av_next, KeyEvent.KEYCODE_MEDIA_NEXT));
                 } else {
                     List<PackageInfo> packages = mPackageManager.getInstalledPackages(0);
                     Intent mainIntent = new Intent();
@@ -665,6 +673,21 @@ public class AppPickerPreference extends DialogPreference
             mAppIcon = new BitmapDrawable(mResources, bitmap);
             mIntent.setAction(ACTION_TOGGLE_TORCH);
             mIntent.putExtra("iconResName", "ic_action_torch");
+            mIntent.putExtra("prefLabel", mAppName);
+        }
+    };
+
+    class MediaAction extends ActionItem {
+        public MediaAction(int nameId, int drawableId, int keyCode) {
+            super();
+            mAppName = mResources.getString(nameId);
+            Bitmap bitmap = Utils.drawableToBitmap(mResources.getDrawable(drawableId));
+            bitmap = Bitmap.createScaledBitmap(bitmap, mAppIconSizePx, mAppIconSizePx, false);
+            mAppIcon = new BitmapDrawable(mResources, bitmap);
+            mIntent.setAction(ACTION_MEDIA_CONTROL);
+            mIntent.putExtra(EXTRA_MC_KEYCODE, keyCode);
+            mIntent.putExtra(EXTRA_KEEP_SCREEN_OFF, true);
+            mIntent.putExtra("iconResName", mResources.getResourceEntryName(drawableId));
             mIntent.putExtra("prefLabel", mAppName);
         }
     };
