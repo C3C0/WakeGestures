@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Handler;
 import android.os.PowerManager;
 import android.os.UserHandle;
 import android.os.PowerManager.WakeLock;
@@ -49,10 +50,14 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
     private XSharedPreferences mPrefs;
     private WakeGestureProcessor mWgp;
     private Map<WakeGesture, Intent> mWakeGestures;
+    private Map<WakeGesture, Intent> mDoubleWakeGestures;
     private PowerManager mPm;
     private Object mPhoneWindowManager;
     private boolean mDismissKeyguardOnNextScreenOn;
     private Unhook mScreenOnUnhook;
+    private WakeGesture mPendingGesture;
+    private Handler mHandler;
+    private WakeLock mWakeLock;
 
     public WakeGestureHandler(Object phoneWindowManager) {
         mPhoneWindowManager = phoneWindowManager;
@@ -60,6 +65,7 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         mPrefs = new XSharedPreferences(ModWakeGestures.PACKAGE_NAME);
         mPrefs.makeWorldReadable();
         mPm = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
+        mHandler = new Handler();
 
         try {
             mWgContext = mContext.createPackageContext(ModWakeGestures.PACKAGE_NAME, Context.CONTEXT_IGNORE_SECURITY);
@@ -97,6 +103,18 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         mWakeGestures.put(WakeGesture.DOUBLETAP, intentFromUri(mPrefs.getString(
                 WakeGestureSettings.PREF_KEY_WG_DOUBLETAP, null)));
 
+        mDoubleWakeGestures = new HashMap<WakeGesture, Intent>(5);
+        mDoubleWakeGestures.put(WakeGesture.SWEEP_RIGHT, intentFromUri(mPrefs.getString(
+                WakeGestureSettings.PREF_KEY_WG_SWEEP_RIGHT_DBL, null)));
+        mDoubleWakeGestures.put(WakeGesture.SWEEP_LEFT, intentFromUri(mPrefs.getString(
+                WakeGestureSettings.PREF_KEY_WG_SWEEP_LEFT_DBL, null)));
+        mDoubleWakeGestures.put(WakeGesture.SWEEP_UP, intentFromUri(mPrefs.getString(
+                WakeGestureSettings.PREF_KEY_WG_SWEEP_UP_DBL, null)));
+        mDoubleWakeGestures.put(WakeGesture.SWEEP_DOWN, intentFromUri(mPrefs.getString(
+                WakeGestureSettings.PREF_KEY_WG_SWEEP_DOWN_DBL, null)));
+        mDoubleWakeGestures.put(WakeGesture.DOUBLETAP, intentFromUri(mPrefs.getString(
+                WakeGestureSettings.PREF_KEY_WG_DOUBLETAP_DBL, null)));
+
         if (ModWakeGestures.DEBUG) {
             for (Entry<WakeGesture, Intent> item : mWakeGestures.entrySet()) {
                 ModWakeGestures.log(item.getKey().toString() + ": " + item.getValue());
@@ -104,6 +122,7 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         }
 
         IntentFilter intentFilter = new IntentFilter(WakeGestureSettings.ACTION_WAKE_GESTURE_CHANGED);
+        intentFilter.addAction(WakeGestureSettings.ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
         mContext.registerReceiver(mBroadcastReceiver, intentFilter);
     }
 
@@ -125,7 +144,23 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             ModWakeGestures.log("onWakeGesture: " + gesture);
         }
 
-        handleIntent(mWakeGestures.get(gesture));
+        mHandler.removeCallbacks(mPendingGestureRunnable);
+        final WakeGesture prevGesture = mPendingGesture;
+        mPendingGesture = null;
+        releasePartialWakeLock();
+
+        if (gesture == prevGesture) {
+            handleIntent(mDoubleWakeGestures.get(gesture));
+        } else {
+            if (mDoubleWakeGestures.get(gesture) != null) {
+                mPendingGesture = gesture;
+                mWakeLock = mPm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, ModWakeGestures.TAG);
+                mWakeLock.acquire();
+                mHandler.postDelayed(mPendingGestureRunnable, 1000);
+            } else {
+                handleIntent(mWakeGestures.get(gesture));
+            }
+        }
     }
 
     @Override
@@ -133,15 +168,34 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         ModWakeGestures.log("onProcessingException: " + e.getMessage());
     }
 
+    private Runnable mPendingGestureRunnable = new Runnable() {
+        @Override
+        public void run() {
+            releasePartialWakeLock();
+            if (mPendingGesture != null) {
+                handleIntent(mWakeGestures.get(mPendingGesture));
+                mPendingGesture = null;
+            }
+        }
+    };
+
+    private void releasePartialWakeLock() {
+        if (mWakeLock != null && mWakeLock.isHeld()) {
+            mWakeLock.release();
+            if (ModWakeGestures.DEBUG) ModWakeGestures.log("Partial wakelock released");
+        }
+    }
+
+    @SuppressWarnings("deprecation")
     private void handleIntent(Intent intent) {
         if (intent == null || !intent.hasExtra("mode")) return;
 
-        @SuppressWarnings("deprecation")
-        WakeLock wake = mPm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
+        mWakeLock = mPm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK |
             PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.ON_AFTER_RELEASE,
                 ModWakeGestures.TAG);
-        wake.acquire();
-        wake.release();
+        mWakeLock.acquire();
+        mWakeLock.release();
+        mWakeLock = null;
 
         int mode = intent.getIntExtra("mode", AppPickerPreference.MODE_APP);
         if (mode == AppPickerPreference.MODE_APP || mode == AppPickerPreference.MODE_SHORTCUT) {
@@ -215,14 +269,20 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(WakeGestureSettings.ACTION_WAKE_GESTURE_CHANGED) &&
+            String action = intent.getAction();
+            if ((action.equals(WakeGestureSettings.ACTION_WAKE_GESTURE_CHANGED) ||
+                    action.equals(WakeGestureSettings.ACTION_DOUBLE_WAKE_GESTURE_CHANGED)) &&
                     intent.hasExtra(WakeGestureSettings.EXTRA_WAKE_GESTURE)) {
                 try {
                     WakeGesture wg = WakeGesture.valueOf(intent.getStringExtra(
                             WakeGestureSettings.EXTRA_WAKE_GESTURE));
                     if (wg != null) {
                         String uri = intent.getStringExtra(WakeGestureSettings.EXTRA_INTENT_URI);
-                        mWakeGestures.put(wg, intentFromUri(uri));
+                        if (action.equals(WakeGestureSettings.ACTION_WAKE_GESTURE_CHANGED)) {
+                            mWakeGestures.put(wg, intentFromUri(uri));
+                        } else {
+                            mDoubleWakeGestures.put(wg, intentFromUri(uri));
+                        }
                         if (ModWakeGestures.DEBUG) {
                             ModWakeGestures.log(wg.toString() + ": " + uri);
                         }

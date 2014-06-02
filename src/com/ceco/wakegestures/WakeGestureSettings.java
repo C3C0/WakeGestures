@@ -32,12 +32,18 @@ public class WakeGestureSettings extends Activity {
     public static final String PREF_KEY_ABOUT_DONATE = "pref_about_donate";
     public static final String PREF_KEY_ABOUT_ELEMENTALX = "pref_about_elementalx";
     public static final String PREF_KEY_WG_SWEEP_RIGHT = "pref_wg_sweep_right";
+    public static final String PREF_KEY_WG_SWEEP_RIGHT_DBL = "pref_wg_sweep_right_dbl";
     public static final String PREF_KEY_WG_SWEEP_LEFT = "pref_wg_sweep_left";
+    public static final String PREF_KEY_WG_SWEEP_LEFT_DBL = "pref_wg_sweep_left_dbl";
     public static final String PREF_KEY_WG_SWEEP_UP = "pref_wg_sweep_up";
+    public static final String PREF_KEY_WG_SWEEP_UP_DBL = "pref_wg_sweep_up_dbl";
     public static final String PREF_KEY_WG_SWEEP_DOWN = "pref_wg_sweep_down";
+    public static final String PREF_KEY_WG_SWEEP_DOWN_DBL = "pref_wg_sweep_down_dbl";
     public static final String PREF_KEY_WG_DOUBLETAP = "pref_wg_doubletap";
+    public static final String PREF_KEY_WG_DOUBLETAP_DBL = "pref_wg_doubletap_dbl";
 
     public static final String ACTION_WAKE_GESTURE_CHANGED = "wakegestures.intent.action.WAKE_GESTURE_CHANGED";
+    public static final String ACTION_DOUBLE_WAKE_GESTURE_CHANGED = "wakegestures.intent.action.DOUBLE_WAKE_GESTURE_CHANGED";
     public static final String EXTRA_WAKE_GESTURE = "wakeGesture";
     public static final String EXTRA_INTENT_URI = "intentUri";
 
@@ -138,11 +144,26 @@ public class WakeGestureSettings extends Activity {
             super.onResume();
             mPrefs.registerOnSharedPreferenceChangeListener(this);
 
+            
             findPreference(PREF_KEY_WG_SWEEP_RIGHT).setEnabled(WakeGesture.SWEEP_RIGHT.isEnabled());
+            findPreference(PREF_KEY_WG_SWEEP_RIGHT_DBL).setEnabled(
+                    findPreference(PREF_KEY_WG_SWEEP_RIGHT).isEnabled());
+
             findPreference(PREF_KEY_WG_SWEEP_LEFT).setEnabled(WakeGesture.SWEEP_LEFT.isEnabled());
+            findPreference(PREF_KEY_WG_SWEEP_LEFT_DBL).setEnabled(
+                    findPreference(PREF_KEY_WG_SWEEP_LEFT).isEnabled());
+
             findPreference(PREF_KEY_WG_SWEEP_UP).setEnabled(WakeGesture.SWEEP_UP.isEnabled());
+            findPreference(PREF_KEY_WG_SWEEP_UP_DBL).setEnabled(
+                    findPreference(PREF_KEY_WG_SWEEP_UP).isEnabled());
+
             findPreference(PREF_KEY_WG_SWEEP_DOWN).setEnabled(WakeGesture.SWEEP_DOWN.isEnabled());
+            findPreference(PREF_KEY_WG_SWEEP_DOWN_DBL).setEnabled(
+                    findPreference(PREF_KEY_WG_SWEEP_DOWN).isEnabled());
+
             findPreference(PREF_KEY_WG_DOUBLETAP).setEnabled(WakeGesture.DOUBLETAP.isEnabled());
+            findPreference(PREF_KEY_WG_DOUBLETAP_DBL).setEnabled(
+                    findPreference(PREF_KEY_WG_DOUBLETAP).isEnabled());
         }
 
         @Override
@@ -181,13 +202,28 @@ public class WakeGestureSettings extends Activity {
 
             if (key.equals(PREF_KEY_WG_SWEEP_RIGHT)) {
                 intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_RIGHT");
+            } else if (key.equals(PREF_KEY_WG_SWEEP_RIGHT)) {
+                intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
+                intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_RIGHT");
             } else if (key.equals(PREF_KEY_WG_SWEEP_LEFT)) {
+                intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_LEFT");
+            } else if (key.equals(PREF_KEY_WG_SWEEP_LEFT_DBL)) {
+                intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
                 intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_LEFT");
             } else if (key.equals(PREF_KEY_WG_SWEEP_UP)) {
                 intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_UP");
+            } else if (key.equals(PREF_KEY_WG_SWEEP_UP_DBL)) {
+                intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
+                intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_UP");
             } else if (key.equals(PREF_KEY_WG_SWEEP_DOWN)) {
                 intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_DOWN");
+            } else if (key.equals(PREF_KEY_WG_SWEEP_DOWN_DBL)) {
+                intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
+                intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_DOWN");
             } else if (key.equals(PREF_KEY_WG_DOUBLETAP)) {
+                intent.putExtra(EXTRA_WAKE_GESTURE, "DOUBLETAP");
+            } else if (key.equals(PREF_KEY_WG_DOUBLETAP_DBL)) {
+                intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
                 intent.putExtra(EXTRA_WAKE_GESTURE, "DOUBLETAP");
             }
 

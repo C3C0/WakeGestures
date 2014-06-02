@@ -55,4 +55,11 @@
     <string name="torch_on">Torch On</string>
     <string name="torch_off_notif">Touch to turn off</string>
 
+    <!-- Double gestures -->
+    <string name="pref_wg_sweep_right_dbl_title">Double-sweep right</string>
+    <string name="pref_wg_sweep_left_dbl_title">Double-sweep left</string>
+    <string name="pref_wg_sweep_up_dbl_title">Double-sweep up</string>
+    <string name="pref_wg_sweep_down_dbl_title">Double-sweep down</string>
+    <string name="pref_wg_doubletap_dbl_title">Double-doubletap</string>
+
 </resources>

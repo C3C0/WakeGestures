@@ -27,8 +27,20 @@
             iconPickerEnabled="false" />
 
         <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_right_dbl"
+            android:title="@string/pref_wg_sweep_right_dbl_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
             android:key="pref_wg_sweep_left"
             android:title="@string/pref_wg_sweep_left_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_left_dbl"
+            android:title="@string/pref_wg_sweep_left_dbl_title"
             android:summary="@string/app_picker_none"
             iconPickerEnabled="false" />
 
@@ -39,14 +51,32 @@
             iconPickerEnabled="false" />
 
         <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_up_dbl"
+            android:title="@string/pref_wg_sweep_up_dbl_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
             android:key="pref_wg_sweep_down"
             android:title="@string/pref_wg_sweep_down_title"
             android:summary="@string/app_picker_none"
             iconPickerEnabled="false" />
 
         <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_sweep_down_dbl"
+            android:title="@string/pref_wg_sweep_down_dbl_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
             android:key="pref_wg_doubletap"
             android:title="@string/pref_wg_doubletap_title"
+            android:summary="@string/app_picker_none"
+            iconPickerEnabled="false" />
+
+        <com.ceco.wakegestures.preference.AppPickerPreference
+            android:key="pref_wg_doubletap_dbl"
+            android:title="@string/pref_wg_doubletap_dbl_title"
             android:summary="@string/app_picker_none"
             iconPickerEnabled="false" />
 
