@@ -1,3 +1,15 @@
+Changelog 1.1 - 02/06/2014
+--------------------------------------
+- Added Screen on action
+- Added actions for switching media tracks (prev/next)
+- Added double-sweep support
+--- now allows up to 10 actions (2*5)
+--- Things to be aware of:
+------ double-swipe introduces 1 second delay to single swipe (only when set) which is a time window
+------ during which module waits for user to repeat swipe 
+------ double-swiping too fast triggers doubletap
+------ requires some practice
+
 Changelog 1.0 - 31/05/2014
 --------------------------------------
 - Initial version
