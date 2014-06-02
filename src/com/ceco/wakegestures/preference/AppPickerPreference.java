@@ -88,6 +88,8 @@ public class AppPickerPreference extends DialogPreference
     public static final String ACTION_TOGGLE_TORCH = TorchService.ACTION_TOGGLE_TORCH;
     public static final String ACTION_MEDIA_CONTROL = "wakegestures.intent.action.MEDIA_CONTROL";
     public static final String EXTRA_MC_KEYCODE = "mediaControlKeycode";
+    public static final String ACTION_SCREEN_ON = "wakegestures.intent.action.SCREEN_ON";
+
     public static final String EXTRA_KEEP_SCREEN_OFF = "keepScreenOff";
 
     public static SettingsFragment sPrefsFragment;
@@ -336,6 +338,7 @@ public class AppPickerPreference extends DialogPreference
                             R.drawable.ic_action_av_previous, KeyEvent.KEYCODE_MEDIA_PREVIOUS));
                     itemList.add(new MediaAction(R.string.media_control_next,
                             R.drawable.ic_action_av_next, KeyEvent.KEYCODE_MEDIA_NEXT));
+                    itemList.add(new ScreenOnAction());
                 } else {
                     List<PackageInfo> packages = mPackageManager.getInstalledPackages(0);
                     Intent mainIntent = new Intent();
@@ -688,6 +691,19 @@ public class AppPickerPreference extends DialogPreference
             mIntent.putExtra(EXTRA_MC_KEYCODE, keyCode);
             mIntent.putExtra(EXTRA_KEEP_SCREEN_OFF, true);
             mIntent.putExtra("iconResName", mResources.getResourceEntryName(drawableId));
+            mIntent.putExtra("prefLabel", mAppName);
+        }
+    };
+
+    class ScreenOnAction extends ActionItem {
+        public ScreenOnAction() {
+            super();
+            mAppName = mResources.getString(R.string.action_screen_on);
+            Bitmap bitmap = Utils.drawableToBitmap(mResources.getDrawable(R.drawable.ic_action_screen_on));
+            bitmap = Bitmap.createScaledBitmap(bitmap, mAppIconSizePx, mAppIconSizePx, false);
+            mAppIcon = new BitmapDrawable(mResources, bitmap);
+            mIntent.setAction(ACTION_SCREEN_ON);
+            mIntent.putExtra("iconResName", "ic_action_screen_on");
             mIntent.putExtra("prefLabel", mAppName);
         }
     };

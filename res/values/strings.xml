@@ -66,4 +66,7 @@
     <string name="media_control_previous">Previous track</string>
     <string name="media_control_next">Next track</string>
 
+    <!-- Screen on action -->
+    <string name="action_screen_on">Turn screen on</string>
+
 </resources>

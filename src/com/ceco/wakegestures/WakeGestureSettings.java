@@ -202,7 +202,7 @@ public class WakeGestureSettings extends Activity {
 
             if (key.equals(PREF_KEY_WG_SWEEP_RIGHT)) {
                 intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_RIGHT");
-            } else if (key.equals(PREF_KEY_WG_SWEEP_RIGHT)) {
+            } else if (key.equals(PREF_KEY_WG_SWEEP_RIGHT_DBL)) {
                 intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
                 intent.putExtra(EXTRA_WAKE_GESTURE, "SWEEP_RIGHT");
             } else if (key.equals(PREF_KEY_WG_SWEEP_LEFT)) {

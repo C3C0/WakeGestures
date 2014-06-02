@@ -241,6 +241,8 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             toggleTorch();
         } else if (action.equals(AppPickerPreference.ACTION_MEDIA_CONTROL)) {
             sendMediaButtonEvent(intent.getIntExtra(AppPickerPreference.EXTRA_MC_KEYCODE, 0));
+        } else if (action.equals(AppPickerPreference.ACTION_SCREEN_ON)) {
+            // do nothing as wake lock already did it for us
         }
     }
 
