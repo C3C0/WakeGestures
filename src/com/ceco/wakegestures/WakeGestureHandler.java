@@ -67,6 +67,7 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
     private WakeLock mWakeLock;
     private SensorManager mSensorManager;
     private Sensor mProxSensor;
+    private boolean mRequireActiveMusic;
 
     public WakeGestureHandler(Object phoneWindowManager) {
         mPhoneWindowManager = phoneWindowManager;
@@ -124,10 +125,13 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         mDoubleWakeGestures.put(WakeGesture.DOUBLETAP, intentFromUri(mPrefs.getString(
                 WakeGestureSettings.PREF_KEY_WG_DOUBLETAP_DBL, null)));
 
+        mRequireActiveMusic = mPrefs.getBoolean(WakeGestureSettings.PREF_KEY_ACTIVE_MUSIC, false);
+
         if (ModWakeGestures.DEBUG) {
             for (Entry<WakeGesture, Intent> item : mWakeGestures.entrySet()) {
                 ModWakeGestures.log(item.getKey().toString() + ": " + item.getValue());
             }
+            ModWakeGestures.log("mRequireActiveMusic: " + mRequireActiveMusic);
         }
 
         setPocketModeEnabled(mPrefs.getBoolean(WakeGestureSettings.PREF_KEY_POCKET_MODE, false));
@@ -295,7 +299,9 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         } else if (action.equals(AppPickerPreference.ACTION_TOGGLE_TORCH)) {
             toggleTorch();
         } else if (action.equals(AppPickerPreference.ACTION_MEDIA_CONTROL)) {
-            sendMediaButtonEvent(intent.getIntExtra(AppPickerPreference.EXTRA_MC_KEYCODE, 0));
+            if (!mRequireActiveMusic || isMusicActive()) {
+                sendMediaButtonEvent(intent.getIntExtra(AppPickerPreference.EXTRA_MC_KEYCODE, 0));
+            }
         } else if (action.equals(AppPickerPreference.ACTION_SCREEN_ON)) {
             // do nothing as wake lock already did it for us
         }
@@ -353,6 +359,15 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
         }
     }
 
+    private boolean isMusicActive() {
+        try {
+            return (Boolean) XposedHelpers.callMethod(mPhoneWindowManager, "isMusicActive");
+        } catch (Throwable t) {
+            XposedBridge.log(t);
+            return false;
+        }
+    }
+
     private XC_MethodHook mScreenOnHook = new XC_MethodHook() {
         @Override
         protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -390,6 +405,12 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             } else if (action.equals(WakeGestureSettings.ACTION_SETTINGS_CHANGED)) {
                 if (intent.hasExtra(WakeGestureSettings.EXTRA_POCKET_MODE)) {
                     setPocketModeEnabled(intent.getBooleanExtra(WakeGestureSettings.EXTRA_POCKET_MODE, false));
+                }
+                if (intent.hasExtra(WakeGestureSettings.EXTRA_ACTIVE_MUSIC)) {
+                    mRequireActiveMusic = intent.getBooleanExtra(WakeGestureSettings.EXTRA_ACTIVE_MUSIC, false);
+                    if (ModWakeGestures.DEBUG) {
+                        ModWakeGestures.log("mRequireActiveMusic: " + mRequireActiveMusic);
+                    }
                 }
             }
         }

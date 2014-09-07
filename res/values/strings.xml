@@ -76,4 +76,8 @@
     <string name="pref_pocket_mode_title">Pocket mode</string>
     <string name="pref_pocket_mode_summary">Won\'t trigger action when proximity sensor is covered, e.g. when device is in the pocket</string>
 
+    <!-- Require active music -->
+    <string name="pref_active_music_title">Require active music</string>
+    <string name="pref_active_music_summary">Won\'t trigger next/previous track action when music is not active</string>
+
 </resources>

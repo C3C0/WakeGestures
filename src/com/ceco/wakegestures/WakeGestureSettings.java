@@ -42,6 +42,7 @@ public class WakeGestureSettings extends Activity {
     public static final String PREF_KEY_WG_DOUBLETAP = "pref_wg_doubletap";
     public static final String PREF_KEY_WG_DOUBLETAP_DBL = "pref_wg_doubletap_dbl";
     public static final String PREF_KEY_POCKET_MODE = "pref_pocket_mode";
+    public static final String PREF_KEY_ACTIVE_MUSIC = "pref_active_music";
 
     public static final String ACTION_WAKE_GESTURE_CHANGED = "wakegestures.intent.action.WAKE_GESTURE_CHANGED";
     public static final String ACTION_DOUBLE_WAKE_GESTURE_CHANGED = "wakegestures.intent.action.DOUBLE_WAKE_GESTURE_CHANGED";
@@ -50,6 +51,7 @@ public class WakeGestureSettings extends Activity {
 
     public static final String ACTION_SETTINGS_CHANGED = "wakegestures.intent.action.SETTINGS_CHANGED";
     public static final String EXTRA_POCKET_MODE = "pocketMode";
+    public static final String EXTRA_ACTIVE_MUSIC = "activeMusic";
 
     private static final int REQ_OBTAIN_SHORTCUT = 1028;
 
@@ -232,6 +234,9 @@ public class WakeGestureSettings extends Activity {
             } else if (key.equals(PREF_KEY_POCKET_MODE)) {
                 intent.setAction(ACTION_SETTINGS_CHANGED);
                 intent.putExtra(EXTRA_POCKET_MODE, prefs.getBoolean(key, false));
+            } else if (key.equals(PREF_KEY_ACTIVE_MUSIC)) {
+                intent.setAction(ACTION_SETTINGS_CHANGED);
+                intent.putExtra(EXTRA_ACTIVE_MUSIC, prefs.getBoolean(key, false));
             }
 
             if (intent.hasExtra(EXTRA_WAKE_GESTURE) ||

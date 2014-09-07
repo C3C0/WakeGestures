@@ -92,6 +92,12 @@
             android:summary="@string/pref_pocket_mode_summary"
             android:defaultValue="false" />
 
+        <CheckBoxPreference
+            android:key="pref_active_music"
+            android:title="@string/pref_active_music_title"
+            android:summary="@string/pref_active_music_summary"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 
     <PreferenceCategory
