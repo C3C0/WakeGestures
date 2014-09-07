@@ -26,6 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -61,6 +65,8 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
     private WakeGesture mPendingGesture;
     private Handler mHandler;
     private WakeLock mWakeLock;
+    private SensorManager mSensorManager;
+    private Sensor mProxSensor;
 
     public WakeGestureHandler(Object phoneWindowManager) {
         mPhoneWindowManager = phoneWindowManager;
@@ -83,8 +89,8 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             ModWakeGestures.log("Error hooking finishScreenTurningOn: " + t.getMessage());
         }
 
-        initWakeGestureProcessor();
         initWakeGestures();
+        initWakeGestureProcessor();
     }
 
     private void initWakeGestureProcessor() {
@@ -124,9 +130,26 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
             }
         }
 
+        setPocketModeEnabled(mPrefs.getBoolean(WakeGestureSettings.PREF_KEY_POCKET_MODE, false));
+
         IntentFilter intentFilter = new IntentFilter(WakeGestureSettings.ACTION_WAKE_GESTURE_CHANGED);
         intentFilter.addAction(WakeGestureSettings.ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
+        intentFilter.addAction(WakeGestureSettings.ACTION_SETTINGS_CHANGED);
         mContext.registerReceiver(mBroadcastReceiver, intentFilter);
+    }
+
+    private void setPocketModeEnabled(boolean enabled) {
+        if (ModWakeGestures.DEBUG) {
+            ModWakeGestures.log("setPocketModeEnabled: " + enabled);
+        }
+
+        if (enabled) {
+            mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+            mProxSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
+        } else {
+            mProxSensor = null;
+            mSensorManager = null;
+        }
     }
 
     private Intent intentFromUri(String uri) {
@@ -142,11 +165,43 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
     }
 
     @Override
-    public void onWakeGesture(WakeGesture gesture) {
+    public void onWakeGesture(final WakeGesture gesture) {
         if (ModWakeGestures.DEBUG) {
             ModWakeGestures.log("onWakeGesture: " + gesture);
         }
 
+        if (mSensorManager != null && mProxSensor != null) {
+            mSensorManager.registerListener(new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    try {
+                        final boolean screenCovered = 
+                                event.values[0] < (mProxSensor.getMaximumRange() * 0.1f); 
+                        if (ModWakeGestures.DEBUG) ModWakeGestures.log(
+                                "mProxSensorEventListener: " + event.values[0] +
+                                "; screenCovered=" + screenCovered);
+                        if (!screenCovered) {
+                            processGesture(gesture);
+                        }
+                    } catch (Throwable t) {
+                        XposedBridge.log(t);
+                    } finally {
+                        try { 
+                            mSensorManager.unregisterListener(this, mProxSensor); 
+                        } catch (Throwable t) {
+                            // should never happen
+                        }
+                    }
+                }
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) { }
+            }, mProxSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        } else {
+            processGesture(gesture);
+        }
+    }
+
+    private void processGesture(WakeGesture gesture) {
         mHandler.removeCallbacks(mPendingGestureRunnable);
         final WakeGesture prevGesture = mPendingGesture;
         mPendingGesture = null;
@@ -331,6 +386,10 @@ public class WakeGestureHandler implements WakeGestureProcessor.WakeGestureListe
                     }
                 } catch (Exception e) { 
                     ModWakeGestures.log("ACTION_WAKE_GESTURE_CHANGED error: " + e.getMessage());
+                }
+            } else if (action.equals(WakeGestureSettings.ACTION_SETTINGS_CHANGED)) {
+                if (intent.hasExtra(WakeGestureSettings.EXTRA_POCKET_MODE)) {
+                    setPocketModeEnabled(intent.getBooleanExtra(WakeGestureSettings.EXTRA_POCKET_MODE, false));
                 }
             }
         }

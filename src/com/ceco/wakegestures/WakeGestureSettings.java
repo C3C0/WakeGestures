@@ -41,11 +41,15 @@ public class WakeGestureSettings extends Activity {
     public static final String PREF_KEY_WG_SWEEP_DOWN_DBL = "pref_wg_sweep_down_dbl";
     public static final String PREF_KEY_WG_DOUBLETAP = "pref_wg_doubletap";
     public static final String PREF_KEY_WG_DOUBLETAP_DBL = "pref_wg_doubletap_dbl";
+    public static final String PREF_KEY_POCKET_MODE = "pref_pocket_mode";
 
     public static final String ACTION_WAKE_GESTURE_CHANGED = "wakegestures.intent.action.WAKE_GESTURE_CHANGED";
     public static final String ACTION_DOUBLE_WAKE_GESTURE_CHANGED = "wakegestures.intent.action.DOUBLE_WAKE_GESTURE_CHANGED";
     public static final String EXTRA_WAKE_GESTURE = "wakeGesture";
     public static final String EXTRA_INTENT_URI = "intentUri";
+
+    public static final String ACTION_SETTINGS_CHANGED = "wakegestures.intent.action.SETTINGS_CHANGED";
+    public static final String EXTRA_POCKET_MODE = "pocketMode";
 
     private static final int REQ_OBTAIN_SHORTCUT = 1028;
 
@@ -225,11 +229,17 @@ public class WakeGestureSettings extends Activity {
             } else if (key.equals(PREF_KEY_WG_DOUBLETAP_DBL)) {
                 intent.setAction(ACTION_DOUBLE_WAKE_GESTURE_CHANGED);
                 intent.putExtra(EXTRA_WAKE_GESTURE, "DOUBLETAP");
+            } else if (key.equals(PREF_KEY_POCKET_MODE)) {
+                intent.setAction(ACTION_SETTINGS_CHANGED);
+                intent.putExtra(EXTRA_POCKET_MODE, prefs.getBoolean(key, false));
             }
 
-            if (intent.hasExtra(EXTRA_WAKE_GESTURE)) {
+            if (intent.hasExtra(EXTRA_WAKE_GESTURE) ||
+                    ACTION_SETTINGS_CHANGED.equals(intent.getAction())) {
                 prefs.edit().commit();
-                intent.putExtra(EXTRA_INTENT_URI, prefs.getString(key, null));
+                if (intent.hasExtra(EXTRA_WAKE_GESTURE)) {
+                    intent.putExtra(EXTRA_INTENT_URI, prefs.getString(key, null));
+                }
                 getActivity().sendBroadcast(intent);
             }
         }

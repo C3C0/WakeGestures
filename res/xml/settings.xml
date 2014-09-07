@@ -83,6 +83,18 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="pref_cat_other"
+        android:title="@string/pref_cat_other_title">
+
+        <CheckBoxPreference
+            android:key="pref_pocket_mode"
+            android:title="@string/pref_pocket_mode_title"
+            android:summary="@string/pref_pocket_mode_summary"
+            android:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="pref_cat_about"
         android:title="@string/pref_cat_about_title">
 

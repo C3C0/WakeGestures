@@ -69,4 +69,11 @@
     <!-- Screen on action -->
     <string name="action_screen_on">Turn screen on</string>
 
+    <!-- Other category -->
+    <string name="pref_cat_other_title">Other</string>
+
+    <!-- Pocket mode -->
+    <string name="pref_pocket_mode_title">Pocket mode</string>
+    <string name="pref_pocket_mode_summary">Won\'t trigger action when proximity sensor is covered, e.g. when device is in the pocket</string>
+
 </resources>
